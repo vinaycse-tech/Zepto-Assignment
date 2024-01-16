@@ -1,0 +1,105 @@
+import React, {useState,useEffect,useRef,KeyboardEvent,ChangeEvent,} from "react";
+
+interface Chip {
+  id: number;
+  label: string;
+}
+
+const App: React.FC = () => {
+  const [inputValue, setInputValue] = useState<string>("");
+  const [chips, setChips] = useState<Chip[]>([]);
+  const [filteredItems, setFilteredItems] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const items: string[] = [
+    "Nick Giannopoulos",
+    "Narayana Gamer",
+    "Anita Gros",
+    "Megan Smith",
+    "Bob Smith",
+    "Marina Augustin",
+    "Nick Giannopolus",
+  ];
+
+  useEffect(() => {
+    setFilteredItems(
+      items.filter((item) => !chips.find((chip) => chip.label === item))
+    );
+  }, [chips, items]);
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
+
+    if (value.trim() === "" && chips.length > 0) {
+      const lastChip = chips[chips.length - 1];
+    } else {
+    }
+  };
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Backspace" && inputValue === "" && chips.length > 0) {
+      const lastChip = chips[chips.length - 1];
+      removeChip(lastChip);
+    }
+  };
+
+  const addChip = (item: string) => {
+    const newChip: Chip = {
+      id: chips.length + 1,
+      label: item,
+    };
+
+    setChips([...chips, newChip]);
+    setInputValue("");
+    inputRef.current?.focus();
+  };
+
+  const removeChip = (chip: Chip) => {
+    const updatedChips = chips.filter((c) => c !== chip);
+    setChips(updatedChips);
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-8 p-4">
+      <div className="flex flex-wrap">
+        {chips.map((chip) => (
+          <div
+            key={chip.id}
+            className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2 mb-2 flex items-center"
+          >
+            {chip.label}
+            <button className="ml-2" onClick={() => removeChip(chip)}>
+              X
+            </button>
+          </div>
+        ))}
+      </div>
+      <input
+        ref={inputRef}
+        type="text"
+        className="border p-2 mt-2 w-full"
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleInputKeyDown}
+      />
+      <div className="mt-2">
+        {filteredItems
+          .filter((item) =>
+            item.toLowerCase().includes(inputValue.toLowerCase())
+          )
+          .map((item) => (
+            <div
+              key={item}
+              className="bg-gray-200 p-2 rounded mt-1 cursor-pointer"
+              onClick={() => addChip(item)}
+            >
+              {item}
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default App;
